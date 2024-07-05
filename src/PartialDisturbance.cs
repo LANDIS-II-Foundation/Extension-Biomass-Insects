@@ -2,7 +2,7 @@
 //  Authors:  Jane Foster, Robert M. Scheller
 
 using Landis.Core;
-using Landis.Library.BiomassCohorts;
+using Landis.Library.UniversalCohorts;
 using Landis.SpatialModeling;
 
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace Landis.Extension.Insects
 
         //---------------------------------------------------------------------
 
-        ActiveSite Landis.Library.BiomassCohorts.IDisturbance.CurrentSite
+        ActiveSite Landis.Library.UniversalCohorts.IDisturbance.CurrentSite
         {
             get
             {
@@ -36,7 +36,7 @@ namespace Landis.Extension.Insects
         {
             get
             {
-                return PlugIn.Type;
+                return PlugIn.ExtType;
             }
         }
 
@@ -246,15 +246,15 @@ namespace Landis.Extension.Insects
                 {
                     // Calculate how much biomass is lost to this percent mortality
                     //To get to correct cumulative defoliation, code has to loop through all active insects in any time step. Set equal to the final biomassMortality computed in the loop (NOT +=).
-                    biomassMortality = (int)((double)cohort.Biomass * percentMortality);
+                    biomassMortality = (int)((double)cohort.Data.Biomass * percentMortality);
                     //PlugIn.ModelCore.UI.WriteLine(" In insect loop, biomassMortality={0}, cohort.Biomass={1}, percentMortality={2:0.0000}, cumulativeDefoliation={3:0.00000}.", biomassMortality, cohort.Biomass, percentMortality,cumulativeDefoliation);
 
                 }
 
             }  // end insect loop
 
-            if (biomassMortality > cohort.Biomass)
-                biomassMortality = cohort.Biomass;
+            if (biomassMortality > cohort.Data.Biomass)
+                biomassMortality = cohort.Data.Biomass;
             // Add to avoid strange bug. When a brand new cohort starts on otherwise empty cell with very small biomass and is defoliated, somehow got a very negative cohort biomass. Not clear if bug is here or in Biomass succession...
             if (biomassMortality < 0)
                 biomassMortality = 0;
@@ -267,9 +267,9 @@ namespace Landis.Extension.Insects
                 //PlugIn.ModelCore.UI.WriteLine("Cohort Partial Mortality={0:0.0000}, biomassMortality={1}, Cohort Biomass={2}. Site R/C={3}/{4}.", reductionPartialMortalityToWoody, biomassMortality, cohort.Biomass, currentSite.Location.Row, currentSite.Location.Column);
             }
 
-            if (biomassMortality > cohort.Biomass || biomassMortality < 0)
+            if (biomassMortality > cohort.Data.Biomass || biomassMortality < 0)
             {
-                PlugIn.ModelCore.UI.WriteLine("Cohort Total Mortality={0}. Cohort Biomass={1}. Site R/C={2}/{3}, Percent Mortality={4:0.0000}, Cohort Species={5}.", biomassMortality, cohort.Biomass, currentSite.Location.Row, currentSite.Location.Column, percentMortality, cohort.Species.Name);
+                PlugIn.ModelCore.UI.WriteLine("Cohort Total Mortality={0}. Cohort Biomass={1}. Site R/C={2}/{3}, Percent Mortality={4:0.0000}, Cohort Species={5}.", biomassMortality, cohort.Data.Biomass, currentSite.Location.Row, currentSite.Location.Column, percentMortality, cohort.Species.Name);
                 throw new System.ApplicationException("Error: Total Mortality is not between 0 and cohort biomass");
             }
 
@@ -287,7 +287,7 @@ namespace Landis.Extension.Insects
         public static void ReduceCohortBiomass(ActiveSite site)
         {
             currentSite = site;
-            SiteVars.Cohorts[site].ReduceOrKillBiomassCohorts(singleton);
+            SiteVars.Cohorts[site].ReduceOrKillCohorts(singleton);
         }
     }
 }

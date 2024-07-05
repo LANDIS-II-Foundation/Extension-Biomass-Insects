@@ -2,7 +2,7 @@
 //  Authors:  Jane Foster, Robert M. Scheller
 
 using Landis.SpatialModeling;
-using Landis.Library.BiomassCohorts;
+using Landis.Library.UniversalCohorts;
 using System.Collections.Generic;
 using System;
 

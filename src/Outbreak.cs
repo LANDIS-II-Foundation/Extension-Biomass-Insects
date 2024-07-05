@@ -2,7 +2,7 @@
 //  Authors:  Jane Foster, Robert M. Scheller
 
 using Landis.SpatialModeling;
-using Landis.Library.BiomassCohorts;
+using Landis.Library.UniversalCohorts;
 using System.Collections.Generic;
 using System;
 
@@ -86,12 +86,12 @@ namespace Landis.Extension.Insects
 
 
                 foreach (ISpeciesCohorts speciesCohorts in SiteVars.Cohorts[site])
-                //foreach (ISpeciesCohorts speciesCohorts in (Landis.Library.BiomassCohorts.ISpeciesCohorts) SiteVars.Cohorts[site]) // Rob's suggestion. Raised an error...
+                //foreach (ISpeciesCohorts speciesCohorts in (Landis.Library.UniversalCohorts.ISpeciesCohorts) SiteVars.Cohorts[site]) // Rob's suggestion. Raised an error...
                 {
                     foreach (ICohort cohort in speciesCohorts) 
                     {
-                        suscIndexSum += cohort.Biomass * (insect.SppTable[cohort.Species.Index].Susceptibility);
-                        sumBio += cohort.Biomass;
+                        suscIndexSum += cohort.Data.Biomass * (insect.SppTable[cohort.Species.Index].Susceptibility);
+                        sumBio += cohort.Data.Biomass;
                     }
                 }
                 

@@ -3,7 +3,7 @@
 
 using Landis.Core;
 using Landis.SpatialModeling;
-using Landis.Library.BiomassCohorts;
+using Landis.Library.UniversalCohorts;
 using Landis.Library.Metadata;
 using System.Collections.Generic;
 using Landis.Utilities;
@@ -21,35 +21,31 @@ namespace Landis.Extension.Insects
     public class PlugIn
         : ExtensionMain
     {
-        public static readonly ExtensionType Type = new ExtensionType("disturbance:insects");
+        public static readonly ExtensionType ExtType = new ExtensionType("disturbance:insects");
         public static readonly string ExtensionName = "Biomass Insects";
         public static MetadataTable<EventsLog> eventLog;
         public static int activeInsectIndex;
 
         private string mapNameTemplate;
-        //private StreamWriter log;
         private static List<IInsect> manyInsect;
         private IInputParameters parameters;
-        private static ICore modelCore;
-        private bool running;
-        //private int activeInsectIndex;
+        //private bool running;
 
         //---------------------------------------------------------------------
 
         public PlugIn()
-            : base(ExtensionName, Type)
+            : base(ExtensionName, ExtType)
         {
         }
 
         //---------------------------------------------------------------------
 
-        public static ICore ModelCore
+        public static ICore ModelCore { get; private set; }
+        public override void AddCohortData()
         {
-            get
-            {
-                return modelCore;
-            }
+            return;
         }
+
 
         //---------------------------------------------------------------------
         public static List<IInsect> ManyInsect
@@ -62,7 +58,7 @@ namespace Landis.Extension.Insects
 
         public override void LoadParameters(string dataFile, ICore mCore)
         {
-            modelCore = mCore;
+            ModelCore = mCore;
             SiteVars.Initialize();
             InputParameterParser parser = new InputParameterParser();
             parameters = Landis.Data.Load<IInputParameters>(dataFile, parser);
@@ -116,7 +112,7 @@ namespace Landis.Extension.Insects
         public override void Run()
         {
 
-            running = true;
+            //running = true;
              PlugIn.ModelCore.UI.WriteLine("   Processing landscape for Biomass Insect events ...");
 
             SiteVars.SiteDefoliation.ActiveSiteValues = 0;
@@ -410,7 +406,7 @@ namespace Landis.Extension.Insects
                 if (insect.LastStartYear == PlugIn.ModelCore.CurrentTime)
                 {
                     string path2 = MapNames.ReplaceTemplateVars(mapNameTemplate, ("InitialPatchMap" + insect.Name), PlugIn.ModelCore.CurrentTime);
-                    using (IOutputRaster<ShortPixel> outputRaster = modelCore.CreateRaster<ShortPixel>(path2, modelCore.Landscape.Dimensions))
+                    using (IOutputRaster<ShortPixel> outputRaster = ModelCore.CreateRaster<ShortPixel>(path2, ModelCore.Landscape.Dimensions))
                     {
                         ShortPixel pixel = outputRaster.BufferPixel;
                         foreach (Site site in PlugIn.ModelCore.Landscape.AllSites)
@@ -436,7 +432,7 @@ namespace Landis.Extension.Insects
 
                 //----- Write Insect Defoliation/GrowthReduction maps --------
                 string path = MapNames.ReplaceTemplateVars(mapNameTemplate, insect.Name, PlugIn.ModelCore.CurrentTime - 1);
-                using (IOutputRaster<ShortPixel> outputRaster = modelCore.CreateRaster<ShortPixel>(path, modelCore.Landscape.Dimensions))
+                using (IOutputRaster<ShortPixel> outputRaster = ModelCore.CreateRaster<ShortPixel>(path, ModelCore.Landscape.Dimensions))
                 {
                     ShortPixel pixel = outputRaster.BufferPixel;
 
@@ -464,7 +460,7 @@ namespace Landis.Extension.Insects
 
                 //----- Write Biomass Reduction maps --------
                 string path3 = MapNames.ReplaceTemplateVars(mapNameTemplate, ("BiomassRemoved" + insect.Name), PlugIn.ModelCore.CurrentTime);
-                    using (IOutputRaster<ShortPixel> outputRaster = modelCore.CreateRaster<ShortPixel>(path3, modelCore.Landscape.Dimensions))
+                    using (IOutputRaster<ShortPixel> outputRaster = ModelCore.CreateRaster<ShortPixel>(path3, ModelCore.Landscape.Dimensions))
                     {
                         ShortPixel pixel = outputRaster.BufferPixel;
                         foreach (Site site in PlugIn.ModelCore.Landscape.AllSites)

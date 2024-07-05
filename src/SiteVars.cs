@@ -2,10 +2,8 @@
 //  Authors:  Jane Foster, Robert M. Scheller
 
 
-using Landis.Core;
 using Landis.SpatialModeling;
-using Landis.Library.BiomassCohorts;
-using System.Collections.Generic;
+using Landis.Library.UniversalCohorts;
 
 namespace Landis.Extension.Insects
 {

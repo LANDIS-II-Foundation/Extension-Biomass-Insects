@@ -2,7 +2,7 @@
 //  Authors:  Jane Foster, Robert M. Scheller
 
 using Landis.SpatialModeling;
-using Landis.Library.BiomassCohorts;
+using Landis.Library.UniversalCohorts;
 using System.Collections.Generic;
 using System;
 
@@ -32,7 +32,7 @@ namespace Landis.Extension.Insects
         // an ANNUAL time step and separate from the normal extension time step.
         //static int LastYearDefoliationCohortWasCalled = int.MinValue; // Add this for error capture. Ensure timestep for succession is annual. Previous method doesn't work with new biomass library.
         //static bool TimeStepChecked = false;
-        public static double DefoliateCohort(ICohort cohort, ActiveSite site, int siteBiomass)
+        public static double DefoliateCohort(ActiveSite site, ICohort cohort, int cohortBiomass, int siteBiomass)
         {
 
             // PlugIn.ModelCore.UI.WriteLine("   Calculating insect defoliation...");
@@ -190,8 +190,7 @@ namespace Landis.Extension.Insects
                 //defoliation = Math.Min((1 - totalDefoliation),defoliation);
                 // Then: 
 
-                weightedDefoliation = defoliation * ((double)cohort.Biomass / (double)siteBiomass);
-                //weightedDefoliation = (Math.Min((1 - totalDefoliation), defoliation) * ((double)cohortBiomass / (double)siteBiomass));
+                weightedDefoliation = defoliation * ((double)cohort.Data.Biomass / (double)siteBiomass);
 
                 // PlugIn.ModelCore.UI.WriteLine("Cohort age={0}, species={1}, suscIndex={2}, cohortDefoliation={3}, weightedDefolation={4}.", cohort.Age, cohort.Species.Name, (suscIndex+1), defoliation, weightedDefoliation);
 
