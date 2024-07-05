@@ -1,7 +1,7 @@
 //  Copyright 2006-2011 University of Wisconsin, Portland State University
 //  Authors:  Jane Foster, Robert M. Scheller
 
-using Edu.Wisc.Forest.Flel.Util;
+using Landis.Utilities;
 using Landis.Core;
 using System.Collections.Generic;
 using System.Text;
@@ -67,6 +67,12 @@ namespace Landis.Extension.Insects
             IInsect insectParameters = Landis.Data.Load<IInsect>(insectFileName.Value,insectParser);
             insectParameterList.Add(insectParameters);
 
+            // Check that insectParameters for first insect loaded correctly...
+            if (insectParameters == null)
+                PlugIn.ModelCore.UI.WriteLine("   Biomass Insect:  Insect Parameters NOT loading correctly.");
+            else
+                PlugIn.ModelCore.UI.WriteLine("Name of Insect = {0}", insectParameters.Name);
+
             while (!AtEndOfInput) {
                 StringReader currentLine = new StringReader(CurrentLine);
 
@@ -75,19 +81,30 @@ namespace Landis.Extension.Insects
                 insectParameters = Landis.Data.Load<IInsect>(insectFileName.Value, insectParser);
 
                 insectParameterList.Add(insectParameters);
+                // Try moving below loop here because right now it only lists the last insect in ManyInsect...
+                //foreach (IInsect activeInsect in insectParameterList)
+                //{
+                // Check that insectParameters for 2+ insects loaded correctly...
+                if (insectParameters == null)
+                    PlugIn.ModelCore.UI.WriteLine("   Biomass Insect:  Insect Parameters NOT loading correctly.");
+                else
+                    PlugIn.ModelCore.UI.WriteLine("Name of Insect = {0}", insectParameters.Name);
+
+                //}
+
 
                 GetNextLine();
 
             }
 
-            foreach(IInsect activeInsect in insectParameterList)
+            /*foreach(IInsect activeInsect in insectParameterList)
             {
                 if(insectParameters == null)
                      PlugIn.ModelCore.UI.WriteLine("   Biomass Insect:  Insect Parameters NOT loading correctly.");
                 else
                      PlugIn.ModelCore.UI.WriteLine("Name of Insect = {0}", insectParameters.Name);
 
-            }
+            }*/
             parameters.ManyInsect = insectParameterList;
 
             return parameters; 

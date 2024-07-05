@@ -204,3 +204,9 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+deploy/libs/Landis.Extension.BiomassInsects-v3.dll
+deploy/libs/Landis.Library.AgeOnlyCohorts-v3.dll
+deploy/libs/Landis.Library.Biomass-v2.1.dll
+deploy/libs/Landis.Library.BiomassCohorts-v4.dll
+deploy/libs/Landis.Library.Cohorts-v2.dll
+deploy/libs/Landis.Library.Metadata-v2.dll

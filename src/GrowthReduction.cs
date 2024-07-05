@@ -34,58 +34,90 @@ namespace Landis.Extension.Insects
         public static double ReduceCohortGrowth(ICohort cohort, ActiveSite site)//, int siteBiomass)
         {
             // PlugIn.ModelCore.UI.WriteLine("   Calculating cohort growth reduction due to insect defoliation...");
-
+            // Set summaryGrowthReduction to zero before checking the cohort for defoliation by 1 to many insects...
             double summaryGrowthReduction = 0.0;
-
-            int siteBiomass = 0;
-
-            foreach (ISpeciesCohorts spp in SiteVars.Cohorts[site])
-                foreach (ICohort spp_cohort in spp)
-                    siteBiomass += spp_cohort.Biomass;
-
             int sppIndex = cohort.Species.Index;
+            bool currentActiveOutbreak = false;
 
-            foreach(IInsect insect in PlugIn.ManyInsect)
+            // New loop, first loop through all insects to find out if any of them have an active outbreak.
+
+            foreach (IInsect insect in PlugIn.ManyInsect)
             {
-                if(!insect.ActiveOutbreak)
-                    continue;
-
-                int suscIndex = insect.SppTable[sppIndex].Susceptibility - 1;
-                //if (suscIndex < 0) suscIndex = 0;
-
-                int yearBack = 0;
-                double annualDefoliation = 0.0;
-
-                if(insect.HostDefoliationByYear[site].ContainsKey(PlugIn.ModelCore.CurrentTime - yearBack))
+                if (!(currentActiveOutbreak) && insect.ActiveOutbreak)
                 {
-                    // PlugIn.ModelCore.UI.WriteLine("Host Defoliation By Year:  Time={0}, suscIndex={1}, spp={2}.", (PlugIn.ModelCore.CurrentTime - yearBack), suscIndex+1, cohort.Species.Name);
-                    annualDefoliation += insect.HostDefoliationByYear[site][PlugIn.ModelCore.CurrentTime - yearBack][suscIndex];
+                    currentActiveOutbreak = true;
+                    //PlugIn.ModelCore.UI.WriteLine(" At least one active outbreak reducing growth, insect = {0}, startYear = {1}, stopYear = {2}.", insect.Name, insect.LastStartYear, insect.LastStopYear);
                 }
-                double cumulativeDefoliation = annualDefoliation;
+            }
+            // Only check insect histories for current defoliation if there is at least one current active outbreak. Otherwise there is no current defoliation to reduce growth.
+            if (currentActiveOutbreak)
+            {
 
-                while(annualDefoliation > 0)
+                foreach (IInsect insect in PlugIn.ManyInsect)
                 {
-                    yearBack++;
-                    annualDefoliation = 0.0;
-                    if(insect.HostDefoliationByYear[site].ContainsKey(PlugIn.ModelCore.CurrentTime - yearBack))
+                    //if (!insect.ActiveOutbreak)
+                    //    continue;
+                    /*if (insect.HostDefoliationByYear[site].Count == 0)
+                    {
+                        PlugIn.ModelCore.UI.WriteLine("Checking for prior defoliation:  Time={0}, spp={1}, insect={2}, dictionaryCount={3}.", (PlugIn.ModelCore.CurrentTime), cohort.Species.Name, insect.Name, insect.HostDefoliationByYear[site].Count);
+                    }
+                    // Check for any prior defoliation on cohort by this insect. If below dictionary is empty, the code will throw an error, so don't proceed. Also stop if growth is already reduced by 100%.
+                    if (insect.HostDefoliationByYear[site].Count > 0 && summaryGrowthReduction < 1)
+                        continue;*/
+
+                    int suscIndex = insect.SppTable[sppIndex].Susceptibility - 1;
+                    //if (suscIndex < 0) suscIndex = 0;
+
+                    int yearBack = 0;
+                    double annualDefoliation = 0.0;
+
+                    if (insect.HostDefoliationByYear[site].ContainsKey(PlugIn.ModelCore.CurrentTime - yearBack))
+
                     {
                         // PlugIn.ModelCore.UI.WriteLine("Host Defoliation By Year:  Time={0}, suscIndex={1}, spp={2}.", (PlugIn.ModelCore.CurrentTime - yearBack), suscIndex+1, cohort.Species.Name);
+                        //annualDefoliation += insect.HostDefoliationByYear[site][PlugIn.ModelCore.CurrentTime - yearBack][suscIndex];
                         annualDefoliation = insect.HostDefoliationByYear[site][PlugIn.ModelCore.CurrentTime - yearBack][suscIndex];
-                        cumulativeDefoliation += annualDefoliation;
+                        //PlugIn.ModelCore.UI.WriteLine("1st Host Defoliation By Year:  Time={0}, suscIndex={1}, spp={2}, annualDefoliation={3:0.000000}.", (PlugIn.ModelCore.CurrentTime - yearBack), suscIndex + 1, cohort.Species.Name, annualDefoliation);
                     }
-                }
+                    double cumulativeDefoliation = annualDefoliation;
+                    //PlugIn.ModelCore.UI.WriteLine("1st Cumulative Defoliation by insect:  Time={0}, cumulativeDefoliation={1:0.000000}, spp={2}, insect={3}, annualDefoliation={4:0.000000}.", (PlugIn.ModelCore.CurrentTime - yearBack), cumulativeDefoliation, cohort.Species.Name, insect.Name, annualDefoliation);
 
-                double slope = insect.SppTable[sppIndex].GrowthReduceSlope;
-                double intercept = insect.SppTable[sppIndex].GrowthReduceIntercept;
+                    while (annualDefoliation > 0)
+                    {
+                        yearBack++;
+                        annualDefoliation = 0.0;
+                        if (insect.HostDefoliationByYear[site].ContainsKey(PlugIn.ModelCore.CurrentTime - yearBack))
+                        {
+                            // PlugIn.ModelCore.UI.WriteLine("Host Defoliation By Year:  Time={0}, suscIndex={1}, spp={2}.", (PlugIn.ModelCore.CurrentTime - yearBack), suscIndex+1, cohort.Species.Name);
+                            annualDefoliation = insect.HostDefoliationByYear[site][PlugIn.ModelCore.CurrentTime - yearBack][suscIndex];
+                            cumulativeDefoliation += annualDefoliation;
+                            //PlugIn.ModelCore.UI.WriteLine("Additional Cumulative Defoliation by insect:  Time={0}, cumulativeDefoliation={1:0.000000}, spp={2}, insect={3} annualDefoliation={4:0.000000}.", (PlugIn.ModelCore.CurrentTime - yearBack), cumulativeDefoliation, cohort.Species.Name, insect.Name, annualDefoliation);
 
+                        }
+                    }
 
-                double growthReduction = 1.0 - (cumulativeDefoliation * slope + intercept);
+                    if (cumulativeDefoliation <= (0.0001 * (yearBack + 1)))
+                    {
+                        cumulativeDefoliation = 0.0;
+                    }
 
-                double weightedGD = (growthReduction * ((double) cohort.Biomass / (double) siteBiomass));
-                //Below looks like it should be multiplied by weightedGD above, but it isn't?? CHECK!
-                summaryGrowthReduction += growthReduction;
-                // PlugIn.ModelCore.UI.WriteLine("Time={0}, Spp={1}, SummaryGrowthReduction={2:0.00}.", PlugIn.ModelCore.CurrentTime,cohort.Species.Name, summaryGrowthReduction);
+                    double slope = insect.SppTable[sppIndex].GrowthReduceSlope;
+                    double intercept = insect.SppTable[sppIndex].GrowthReduceIntercept;
+                    double growthReduction = 0.0;
 
+                    if (cumulativeDefoliation > 0)
+                        growthReduction = 1.0 - (cumulativeDefoliation * slope + intercept);
+                    // The intercept parameter can be larger or smaller than 1, which would produce growth reduction even when do cumulative defoliation  = 0
+                    if (growthReduction < 0)
+                        growthReduction = 0.0;
+                    if (growthReduction > 1)
+                        growthReduction = 1.0;
+                    // Sum total growth reduction caused by multiple insects in this year. This is returned and applied to ANPP in Succession Extension.
+                    summaryGrowthReduction += growthReduction;
+                    // PlugIn.ModelCore.UI.WriteLine("Time={0}, Spp={1}, SummaryGrowthReduction={2:0.00}.", PlugIn.ModelCore.CurrentTime,cohort.Species.Name, summaryGrowthReduction);
+                    //PlugIn.ModelCore.UI.WriteLine("Time={0}, Spp={1}, SummaryGrowthReduction={2:0.00}, cumulativeDefoliation={3:0.000000}, insect={4}, Site R/C={5}/{6}.", PlugIn.ModelCore.CurrentTime, cohort.Species.Name, summaryGrowthReduction, cumulativeDefoliation, insect.Name, site.Location.Row, site.Location.Column);
+
+                } // end loop over insects
             }
             if (summaryGrowthReduction > 1.0)  // Cannot exceed 100%
                 summaryGrowthReduction = 1.0;

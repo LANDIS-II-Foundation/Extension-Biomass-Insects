@@ -1,7 +1,7 @@
 //  Copyright 2006-2011 University of Wisconsin, Portland State University
 //  Authors:  Jane Foster, Robert M. Scheller
 
-using Edu.Wisc.Forest.Flel.Util;
+using Landis.Utilities;
 using Landis.SpatialModeling;
 using Landis.Core;
 using System.Collections.Generic;
@@ -42,7 +42,7 @@ namespace Landis.Extension.Insects
         ISiteVar<Dictionary<int,double[]>> HostDefoliationByYear{get;set;}
         ISiteVar<double> LastYearDefoliation{get;set;}
         ISiteVar<double> ThisYearDefoliation{get;set;}
-        ISiteVar<double> NeighborhoodDefoliation{ get; set; }
+        ISiteVar<double> NeighborhoodDefoliation{get;set;}
 
         bool ActiveOutbreak{get;set;}
         //BRM

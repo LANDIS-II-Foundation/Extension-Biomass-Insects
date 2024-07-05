@@ -1,7 +1,7 @@
 //  Copyright 2006-2011 University of Wisconsin, Portland State University
 //  Authors:  Jane Foster, Robert M. Scheller
 
-using Edu.Wisc.Forest.Flel.Util;
+using Landis.Utilities;
 using Landis.Core;
 using System.Collections.Generic;
 using System.Text;
@@ -155,6 +155,13 @@ namespace Landis.Extension.Insects
 
                 GetNextLine();
             }
+
+            /*if (parameters.SppTable != null && PlugIn.ModelCore.Species != null && 
+                parameters.SppTable.Count != PlugIn.ModelCore.Species.Count)
+            {
+                throw new MultiLineException("The number of tree species differs between the Species input file (" + PlugIn.ModelCore.Species.Count
+                    + " species) and Biomass Insects (" + parameters.SppTable.Count + " species).");
+            }*/
 
             //  Read table of Susceptibilities.
             //  Susceptibilities are in decreasing order.
