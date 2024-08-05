@@ -91,7 +91,7 @@ ULMUAMER	1		  0.1		10		0.7	0.1
 
 DynamicInputFile	biomass-succession-dynamic-inputs.txt
 
-AgeOnlyDisturbances:BiomassParameters  biomass_age-only-disturbances.txt	
+
 	
 
 
